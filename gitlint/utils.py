@@ -16,6 +16,7 @@
 import io
 import os
 import re
+import sys
 
 # This can be just pathlib when 2.7 and 3.4 support is dropped.
 import pathlib2 as pathlib
@@ -74,7 +75,11 @@ def _open_for_write(filename):
 
 def _get_cache_filename(name, filename):
     """Returns the cache location for filename and linter name."""
-    filename = os.path.abspath(filename)[1:]
+    if sys.platform == "win32":
+        # Preserve drive letter but strip leading ':' ("c:\\foo.txt" => "c\\foo.txt")
+        filename = os.path.abspath(filename).replace(':', '')
+    else:
+        filename = os.path.abspath(filename)[1:]
     home_folder = os.path.expanduser('~')
     base_cache_dir = os.path.join(home_folder, '.git-lint', 'cache')
 

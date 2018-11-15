@@ -24,7 +24,8 @@ def repository_root():
     try:
         root = subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            stderr=subprocess.STDOUT).strip()
+            stderr=subprocess.STDOUT).strip().replace('/', os.sep)
+
         # Convert to unicode first
         return root.decode('utf-8')
     except subprocess.CalledProcessError:
@@ -72,7 +73,7 @@ def modified_files(root, tracked_only=False, commit=None):
     status_lines = subprocess.check_output([
         'git', 'status', '--porcelain', '--untracked-files=all',
         '--ignore-submodules=all'
-    ]).decode('utf-8').split(os.linesep)
+    ]).replace('/', os.sep).decode('utf-8').split(os.linesep)
 
     modes = ['M ', ' M', 'A ', 'AM', 'MM']
     if not tracked_only:
@@ -93,7 +94,7 @@ def _modified_files_with_commit(root, commit):
     status_lines = subprocess.check_output([
         'git', 'diff-tree', '-r', '--root', '--no-commit-id', '--name-status',
         commit
-    ]).decode('utf-8').split(os.linesep)
+    ]).replace('/', os.sep).decode('utf-8').split(os.linesep)
 
     modified_file_status = utils.filter_lines(
         status_lines,
